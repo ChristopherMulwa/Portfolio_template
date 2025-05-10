@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artisan Wares - Kamarero</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Alice&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #FFF8F0; /* Creamy off-white background */
+            color: #4A3B33; /* Dark Brown text */
+        }
+        /* Theme Colors */
+        :root {
+            --primary-color: #D97706; /* Amber/Terracotta */
+            --secondary-color: #78350F; /* Darker Brown/Russet */
+            --accent-color: #FBBF24; /* Gold/Yellow Accent */
+            --text-dark: #4A3B33;
+            --text-light: #FFF8F0;
+            --bg-light: #FFF8F0;
+            --bg-card: #FFFFFF;
+        }
+
+        .nav-link-active {
+            color: var(--primary-color);
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        .page-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            min-height: calc(100vh - 280px);
+        }
+        .page-section.active {
+            display: block;
+            opacity: 1;
+        }
+        .gallery-item img {
+            transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+        }
+        .gallery-item:hover img {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: var(--bg-card);
+            color: var(--text-dark);
+            margin: 10% auto;
+            padding: 25px;
+            border: 1px solid #8c6d52;
+            width: 90%;
+            max-width: 550px;
+            border-radius: 0.75rem; /* Tailwind rounded-xl */
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 32px;
+            font-weight: bold;
+            line-height: 1;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: var(--primary-color);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Custom button style for the theme */
+        .btn-theme {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            transition: background-color 0.3s ease;
+        }
+        .btn-theme:hover {
+            background-color: var(--secondary-color);
+        }
+        .btn-outline-theme {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .btn-outline-theme:hover {
+            background-color: var(--primary-color);
+            color: var(--text-light);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Alice', serif; /* Elegant serif for headings */
+        }
+
+        /* Admin Section Specific Styles */
+        #admin-section {
+            background-color: #fdfbf7; /* Slightly different bg for admin */
+            border: 1px solid #e0d5c9;
+            border-radius: 8px;
+            padding: 2rem;
+        }
+        #admin-section label {
+            color: var(--secondary-color);
+        }
+        #admin-section input, #admin-section textarea, #admin-section select {
+            border-color: #c9b8a9;
+        }
+        #admin-section input:focus, #admin-section textarea:focus, #admin-section select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(217, 119, 6, 0.25); /* Primary color focus ring */
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 py-4">
+            <div class="flex flex-wrap justify-between items-center">
+                <a href="#" class="text-3xl font-bold nav-link" data-page="home" style="color: var(--secondary-color); font-family: 'Alice', serif;">Kamarero Creations</a>
+                <div class="space-x-3 sm:space-x-5 mt-2 sm:mt-0">
+                    <a href="#" class="hover:text-amber-600 px-2 py-2 sm:px-3 rounded-md text-sm font-medium nav-link" data-page="home">Home</a>
+                    <a href="#" class="hover:text-amber-600 px-2 py-2 sm:px-3 rounded-md text-sm font-medium nav-link" data-page="collection">Collection</a>
+                    <a href="#" class="hover:text-amber-600 px-2 py-2 sm:px-3 rounded-md text-sm font-medium nav-link" data-page="about">Our Story</a>
+                    <a href="#" class="hover:text-amber-600 px-2 py-2 sm:px-3 rounded-md text-sm font-medium nav-link" data-page="contact">Contact</a>
+                    <a href="#" id="admin-nav-link" class="text-xs text-gray-500 hover:text-amber-700 px-2 py-2 sm:px-3 rounded-md font-medium nav-link" data-page="admin">Admin</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section id="home-section" class="page-section flex flex-col items-center justify-center text-center">
+            <div class="max-w-3xl">
+                <h1 class="text-4xl sm:text-5xl md:text-7xl font-bold mb-6 leading-tight" style="color: var(--secondary-color);">Discover Authentic African Wares</h1>
+                <p class="text-md sm:text-lg md:text-xl text-gray-700 mb-8">Handcrafted jewellery, vibrant textiles, unique pottery, and timeless crafts celebrating African artistry.</p>
+                <a href="#" class="btn-theme font-semibold py-3 px-10 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 nav-link text-lg" data-page="collection">Explore Our Treasures</a>
+            </div>
+            <div class="mt-12 md:mt-16 w-full max-w-5xl">
+                <h3 class="text-2xl sm:text-3xl font-semibold mb-8 text-center" style="color: var(--secondary-color);">Featured Artisans</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white p-5 rounded-xl shadow-xl gallery-item text-center">
+                        <img src="https://placehold.co/600x400/D97706/FFF8F0?text=Maasai+Beaded+Necklace" alt="Featured Item 1 - Maasai Beaded Necklace" class="w-full h-64 object-cover rounded-lg mb-3">
+                        <h4 class="text-xl font-semibold mb-1" style="color: var(--primary-color);">Radiant Beadwork</h4>
+                        <p class="text-sm text-gray-600">Traditional Maasai Jewellery</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-xl gallery-item text-center">
+                        <img src="https://placehold.co/600x400/78350F/FFF8F0?text=Carved+Makonde+Statuette" alt="Featured Item 2 - Carved Makonde Statuette" class="w-full h-64 object-cover rounded-lg mb-3">
+                        <h4 class="text-xl font-semibold mb-1" style="color: var(--primary-color);">Ancestral Spirits</h4>
+                        <p class="text-sm text-gray-600">Makonde Wood Carvings</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-xl shadow-xl gallery-item text-center">
+                        <img src="https://placehold.co/600x400/FBBF24/4A3B33?text=Kente+Cloth+Weaving" alt="Featured Item 3 - Kente Cloth Weaving" class="w-full h-64 object-cover rounded-lg mb-3">
+                        <h4 class="text-xl font-semibold mb-1" style="color: var(--primary-color);">Woven Narratives</h4>
+                        <p class="text-sm text-gray-600">Ghanaian Kente Textiles</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="collection-section" class="page-section">
+            <h2 class="text-3xl sm:text-4xl font-bold mb-10 text-center" style="color: var(--secondary-color);">Our Handcrafted Collection</h2>
+            <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+                <div class="gallery-item bg-white rounded-xl shadow-lg overflow-hidden">
+                    <img src="https://placehold.co/600x450/D97706/FFF8F0?text=Zulu+Shield+Replica" alt="Sample Item: Zulu Shield" class="w-full h-72 object-cover">
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold mb-1" style="color: var(--primary-color);">Warrior's Pride Shield</h3>
+                        <p class="text-xs sm:text-sm text-gray-500 mb-1">Category: Decor</p>
+                        <p class="text-gray-700 mt-2 text-sm leading-relaxed">A decorative replica of a traditional Zulu shield, handcrafted with cowhide and wood detailing. Perfect for wall display.</p>
+                        <p class="text-lg font-semibold mt-3" style="color: var(--secondary-color);">$120.00</p>
+                    </div>
+                </div>
+                 <div class="gallery-item bg-white rounded-xl shadow-lg overflow-hidden">
+                    <img src="https://placehold.co/600x450/78350F/FFF8F0?text=Beaded+Sandals" alt="Sample Item: Beaded Sandals" class="w-full h-72 object-cover">
+                    <div class="p-5">
+                        <h3 class="text-xl font-semibold mb-1" style="color: var(--primary-color);">Safari Stride Sandals</h3>
+                        <p class="text-xs sm:text-sm text-gray-500 mb-1">Category: Footwear</p>
+                        <p class="text-gray-700 mt-2 text-sm leading-relaxed">Comfortable leather sandals adorned with intricate beadwork by Kenyan artisans. Available in various sizes.</p>
+                        <p class="text-lg font-semibold mt-3" style="color: var(--secondary-color);">$65.00</p>
+                    </div>
+                </div>
+            </div>
+            <p id="no-items-message" class="text-center text-gray-600 py-10" style="display:none;">Our collection is currently being curated. Please check back soon or visit our Admin section to add new items!</p>
+        </section>
+
+        <section id="about-section" class="page-section">
+            <h2 class="text-3xl sm:text-4xl font-bold mb-10 text-center" style="color: var(--secondary-color);">Our Story & Tradition</h2>
+            <div class="max-w-4xl mx-auto bg-white p-6 sm:p-10 rounded-xl shadow-2xl">
+                <div class="flex flex-col md:flex-row items-center md:items-start mb-8">
+                    <img src="https://placehold.co/400x400/D97706/FFF8F0?text=Artisan+Portrait" alt="Artisan/Shop Owner Photo" class="w-40 h-40 sm:w-52 sm:h-52 rounded-full object-cover mb-6 md:mb-0 md:mr-10 shadow-md border-4 border-amber-200">
+                    <div>
+                        <h3 class="text-2xl sm:text-3xl font-semibold mb-2" style="color: var(--primary-color);">[Your Name / Artisan Collective Name]</h3>
+                        <p class="text-gray-700 mb-4 text-sm sm:text-base">Preserving Heritage, Crafting Beauty</p>
+                    </div>
+                </div>
+                <div class="mb-8 prose prose-sm sm:prose-base max-w-none text-gray-700 leading-relaxed">
+                    <h4 class="text-xl sm:text-2xl font-semibold mb-3" style="color: var(--secondary-color);">From Our Hands to Yours</h4>
+                    <p>
+                        Welcome to Kamarero Creations, where every piece tells a story. We are passionate about bringing the rich artistic traditions of Africa to the world. Our collection is a carefully curated selection of handcrafted items, sourced directly from talented artisans across the continent or created with traditional techniques in our workshop.
+                    </p>
+                    <p>
+                        Our journey began with a deep appreciation for the intricate craftsmanship, vibrant cultures, and profound narratives embedded in African art. We believe in fair trade, sustainable practices, and empowering the communities that keep these ancient skills alive.
+                    </p>
+                    <h4 class="text-xl sm:text-2xl font-semibold mt-6 mb-3" style="color: var(--secondary-color);">Our Commitment</h4>
+                    <p>
+                        We are committed to authenticity, quality, and ethical sourcing. Each item in our shop is chosen for its beauty, cultural significance, and the skill of its maker. Whether it's a piece of intricate beadwork, a hand-carved sculpture, or a vibrant textile, you are acquiring a piece of art that carries the spirit of Africa.
+                    </p>
+                </div>
+                <div class="mt-8 text-center">
+                    <a href="#" class="btn-outline-theme border-2 font-medium py-2 px-6 rounded-lg text-sm sm:text-base nav-link" data-page="contact">Connect with Us</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact-section" class="page-section">
+            <h2 class="text-3xl sm:text-4xl font-bold mb-10 text-center" style="color: var(--secondary-color);">Get In Touch</h2>
+            <div class="max-w-xl mx-auto bg-white p-6 sm:p-10 rounded-xl shadow-2xl">
+                <p class="text-gray-700 mb-8 text-center text-sm sm:text-base">
+                    For inquiries about our collection, custom orders, or collaborations, please reach out. We'd love to hear from you!
+                </p>
+                <form id="contact-form">
+                    <div class="mb-5">
+                        <label for="name" class="block mb-2 text-sm font-medium text-gray-700">Full Name</label>
+                        <input type="text" id="name" name="name" class="bg-amber-50 border border-amber-300 text-gray-900 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-3" placeholder="Aisha Diallo" required>
+                    </div>
+                    <div class="mb-5">
+                        <label for="email" class="block mb-2 text-sm font-medium text-gray-700">Email Address</label>
+                        <input type="email" id="email" name="email" class="bg-amber-50 border border-amber-300 text-gray-900 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-3" placeholder="aisha.diallo@example.com" required>
+                    </div>
+                    <div class="mb-5">
+                        <label for="subject" class="block mb-2 text-sm font-medium text-gray-700">Subject</label>
+                        <input type="text" id="subject" name="subject" class="bg-amber-50 border border-amber-300 text-gray-900 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-3" placeholder="Inquiry about Kente Cloth">
+                    </div>
+                    <div class="mb-5">
+                        <label for="message" class="block mb-2 text-sm font-medium text-gray-700">Message</label>
+                        <textarea id="message" name="message" rows="5" class="bg-amber-50 border border-amber-300 text-gray-900 text-sm rounded-lg focus:ring-amber-500 focus:border-amber-500 block w-full p-3" placeholder="Your message here..." required></textarea>
+                    </div>
+                    <button type="submit" class="w-full btn-theme font-medium rounded-lg text-base px-5 py-3.5 text-center">Send Message</button>
+                </form>
+                <div class="mt-10 text-center">
+                    <p class="text-gray-600 text-sm sm:text-base">Follow our journey:</p>
+                    <div class="flex justify-center space-x-5 mt-3">
+                        <a href="#" class="text-gray-500 hover:text-amber-600" aria-label="Instagram">
+                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.024.048-1.378.06-3.808.06s-2.784-.012-3.808-.06c-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.024-.06-1.378-.06-3.808s.012-2.784.06-3.808c.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.485 2.525c.636-.247 1.363-.416 2.427-.465C8.93 2.013 9.284 2 12.315 2zm0 1.624c-2.387 0-2.704.01-3.648.058-.943.048-1.503.207-1.942.388-.487.202-.883.474-1.255.846-.372.372-.644.768-.846 1.255-.181.44-.34.999-.388 1.942-.048.944-.058 1.261-.058 3.648s.01 2.704.058 3.648c.048.943.207 1.503.388 1.942.202.487.474.883.846 1.255.372.372.768.644 1.255.846.44.181.999.34 1.942.388.944.048 1.261.058 3.648.058s2.704-.01 3.648-.058c.943-.048 1.503-.207 1.942-.388.487-.202.883.474 1.255-.846.372.372.644.768.846 1.255.181-.44.34-.999-.388-1.942.048-.944.058-1.261-.058-3.648s-.01-2.704-.058-3.648c-.048-.943-.207-1.503-.388-1.942a3.28 3.28 0 00-.846-1.255 3.28 3.28 0 00-1.255-.846c-.44-.181-.999-.34-1.942-.388C15.019 3.634 14.702 3.624 12.315 3.624zM12 7.188c-2.649 0-4.812 2.163-4.812 4.812s2.163 4.812 4.812 4.812 4.812-2.163 4.812-4.812S14.649 7.188 12 7.188zm0 7.938c-1.725 0-3.125-1.4-3.125-3.125S10.275 8.875 12 8.875s3.125 1.4 3.125 3.125-1.4 3.125-3.125 3.125zm4.913-7.113a1.188 1.188 0 100-2.375 1.188 1.188 0 000 2.375z" clip-rule="evenodd" /></svg>
+                        </a>
+                        <a href="#" class="text-gray-500 hover:text-amber-600" aria-label="Facebook">
+                           <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" /></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="admin-section" class="page-section">
+            <h2 class="text-3xl sm:text-4xl font-bold mb-10 text-center" style="color: var(--secondary-color);">Admin Panel - Add New Item</h2>
+             <div class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-2xl border border-amber-200">
+                <form id="addItemForm">
+                    <div class="mb-5">
+                        <label for="itemImageUrl" class="block mb-2 text-sm font-medium">Image URL</label>
+                        <input type="url" id="itemImageUrl" class="w-full p-3 border rounded-lg focus:ring-amber-500 focus:border-amber-500" placeholder="https://example.com/image.jpg" required>
+                    </div>
+                    <div class="mb-5">
+                        <label for="itemTitle" class="block mb-2 text-sm font-medium">Item Title</label>
+                        <input type="text" id="itemTitle" class="w-full p-3 border rounded-lg focus:ring-amber-500 focus:border-amber-500" placeholder="Hand-carved Ebony Mask" required>
+                    </div>
+                    <div class="mb-5">
+                        <label for="itemCategory" class="block mb-2 text-sm font-medium">Category</label>
+                        <input type="text" id="itemCategory" class="w-full p-3 border rounded-lg focus:ring-amber-500 focus:border-amber-500" placeholder="e.g., Jewellery, Pottery, Textile, Decor">
+                    </div>
+                    <div class="mb-5">
+                        <label for="itemDescription" class="block mb-2 text-sm font-medium">Description</label>
+                        <textarea id="itemDescription" rows="4" class="w-full p-3 border rounded-lg focus:ring-amber-500 focus:border-amber-500" placeholder="Detailed description of the item..."></textarea>
+                    </div>
+                    <div class="mb-6">
+                        <label for="itemPrice" class="block mb-2 text-sm font-medium">Price (e.g., $45.00 or KES 5000)</label>
+                        <input type="text" id="itemPrice" class="w-full p-3 border rounded-lg focus:ring-amber-500 focus:border-amber-500" placeholder="$XX.XX">
+                    </div>
+                    <div class="flex space-x-4">
+                        <button type="submit" class="flex-1 btn-theme font-semibold py-3 px-6 rounded-lg text-base">Add Item to Collection</button>
+                        <button type="button" id="clearGalleryButton" class="flex-1 btn-outline-theme border-2 font-semibold py-3 px-6 rounded-lg text-base">Clear Entire Collection (Admin)</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-gray-300 py-10 mt-16" style="background-color: var(--secondary-color);">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-sm sm:text-base">&copy; <span id="current-year"></span> Kamerero Creations. All Rights Reserved.</p>
+            <p class="text-xs sm:text-sm mt-1">Authentic African Artistry & Craftsmanship.</p>
+        </div>
+    </footer>
+
+    <div id="notificationModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeNotificationModal()">&times;</span>
+            <h3 id="modalTitle" class="text-xl sm:text-2xl font-semibold mb-4">Notification</h3>
+            <p id="modalMessage" class="text-sm sm:text-base"></p>
+            <button onclick="closeNotificationModal()" class="mt-6 btn-theme font-semibold py-2 px-8 rounded-lg text-sm sm:text-base">OK</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pageSections = document.querySelectorAll('.page-section');
+            const galleryGrid = document.getElementById('gallery-grid');
+            const noItemsMessage = document.getElementById('no-items-message');
+            
+            const contactForm = document.getElementById('contact-form');
+            const addItemForm = document.getElementById('addItemForm');
+            const clearGalleryButton = document.getElementById('clearGalleryButton');
+
+            const modal = document.getElementById('notificationModal');
+            const modalTitleElem = document.getElementById('modalTitle');
+            const modalMessageElem = document.getElementById('modalMessage');
+
+            const PORTFOLIO_ITEMS_KEY = 'africanWaresPortfolioItems';
+
+            // --- Navigation ---
+            function showPage(pageId) {
+                pageSections.forEach(section => {
+                    section.classList.toggle('active', section.id === pageId + '-section');
+                });
+                navLinks.forEach(link => {
+                    link.classList.toggle('nav-link-active', link.dataset.page === pageId);
+                });
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const pageId = this.dataset.page;
+                    showPage(pageId);
+                });
+            });
+
+            // --- Modal Notification ---
+            window.showNotificationModal = function(title, message) {
+                modalTitleElem.textContent = title;
+                modalMessageElem.textContent = message;
+                modal.style.display = "block";
+            }
+            window.closeNotificationModal = function() {
+                modal.style.display = "none";
+            }
+            window.addEventListener('click', function(event) {
+                if (event.target == modal) closeNotificationModal();
+            });
+            document.addEventListener('keydown', function(event) {
+                if (event.key === "Escape" && modal.style.display === "block") closeNotificationModal();
+            });
+            
+            // --- Portfolio Item Management (localStorage) ---
+            function getPortfolioItems() {
+                const itemsJson = localStorage.getItem(PORTFOLIO_ITEMS_KEY);
+                return itemsJson ? JSON.parse(itemsJson) : [];
+            }
+
+            function savePortfolioItems(items) {
+                localStorage.setItem(PORTFOLIO_ITEMS_KEY, JSON.stringify(items));
+            }
+
+            function renderGallery() {
+                const items = getPortfolioItems();
+                galleryGrid.innerHTML = ''; // Clear existing items
+
+                if (items.length === 0) {
+                    // Show the two sample items if local storage is empty
+                    const sampleItem1 = `
+                        <div class="gallery-item bg-white rounded-xl shadow-lg overflow-hidden">
+                            <img src="https://placehold.co/600x450/D97706/FFF8F0?text=Zulu+Shield+Replica" alt="Sample Item: Zulu Shield" class="w-full h-72 object-cover">
+                            <div class="p-5">
+                                <h3 class="text-xl font-semibold mb-1" style="color: var(--primary-color);">Warrior's Pride Shield</h3>
+                                <p class="text-xs sm:text-sm text-gray-500 mb-1">Category: Decor</p>
+                                <p class="text-gray-700 mt-2 text-sm leading-relaxed">A decorative replica of a traditional Zulu shield, handcrafted with cowhide and wood detailing. Perfect for wall display.</p>
+                                <p class="text-lg font-semibold mt-3" style="color: var(--secondary-color);">$120.00</p>
+                            </div>
+                        </div>`;
+                    const sampleItem2 = `
+                        <div class="gallery-item bg-white rounded-xl shadow-lg overflow-hidden">
+                            <img src="https://placehold.co/600x450/78350F/FFF8F0?text=Beaded+Sandals" alt="Sample Item: Beaded Sandals" class="w-full h-72 object-cover">
+                            <div class="p-5">
+                                <h3 class="text-xl font-semibold mb-1" style="color: var(--primary-color);">Safari Stride Sandals</h3>
+                                <p class="text-xs sm:text-sm text-gray-500 mb-1">Category: Footwear</p>
+                                <p class="text-gray-700 mt-2 text-sm leading-relaxed">Comfortable leather sandals adorned with intricate beadwork by Kenyan artisans. Available in various sizes.</p>
+                                <p class="text-lg font-semibold mt-3" style="color: var(--secondary-color);">$65.00</p>
+                            </div>
+                        </div>`;
+                    galleryGrid.innerHTML = sampleItem1 + sampleItem2;
+                    if (noItemsMessage) noItemsMessage.style.display = 'none';
+                    return;
+                }
+
+
+                items.forEach(item => {
+                    const itemElement = `
+                        <div class="gallery-item bg-white rounded-xl shadow-lg overflow-hidden">
+                            <img src="${item.imageUrl || 'https://placehold.co/600x450/cccccc/969696?text=No+Image'}" alt="${item.title}" class="w-full h-72 object-cover">
+                            <div class="p-5">
+                                <h3 class="text-xl font-semibold mb-1" style="color: var(--primary-color);">${item.title}</h3>
+                                ${item.category ? `<p class="text-xs sm:text-sm text-gray-500 mb-1">Category: ${item.category}</p>` : ''}
+                                <p class="text-gray-700 mt-2 text-sm leading-relaxed">${item.description}</p>
+                                ${item.price ? `<p class="text-lg font-semibold mt-3" style="color: var(--secondary-color);">${item.price}</p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    galleryGrid.insertAdjacentHTML('beforeend', itemElement);
+                });
+                if (noItemsMessage) noItemsMessage.style.display = items.length > 0 ? 'none' : 'block';
+            }
+
+            if (addItemForm) {
+                addItemForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    const newItem = {
+                        imageUrl: document.getElementById('itemImageUrl').value.trim(),
+                        title: document.getElementById('itemTitle').value.trim(),
+                        category: document.getElementById('itemCategory').value.trim(),
+                        description: document.getElementById('itemDescription').value.trim(),
+                        price: document.getElementById('itemPrice').value.trim()
+                    };
+
+                    if (!newItem.imageUrl || !newItem.title) {
+                        showNotificationModal("Error", "Image URL and Title are required.");
+                        return;
+                    }
+
+                    const items = getPortfolioItems();
+                    items.push(newItem);
+                    savePortfolioItems(items);
+                    renderGallery();
+                    addItemForm.reset();
+                    showNotificationModal("Success", "New item added to the collection!");
+                    showPage('collection'); // Switch to collection page to see the new item
+                });
+            }
+
+            if (clearGalleryButton) {
+                clearGalleryButton.addEventListener('click', function() {
+                    if (confirm("Are you sure you want to delete ALL items from the collection? This cannot be undone.")) {
+                        localStorage.removeItem(PORTFOLIO_ITEMS_KEY);
+                        renderGallery();
+                        showNotificationModal("Collection Cleared", "All items have been removed from the collection.");
+                    }
+                });
+            }
+            
+            // --- Contact Form (Simulation) ---
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    const name = document.getElementById('name').value.trim();
+                    const email = document.getElementById('email').value.trim();
+                    const message = document.getElementById('message').value.trim();
+
+                    if (!name || !email || !message) {
+                        showNotificationModal('Error', 'Please fill in all required fields (Name, Email, Message).');
+                        return;
+                    }
+                    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailPattern.test(email)) {
+                        showNotificationModal('Error', 'Please enter a valid email address.');
+                        return;
+                    }
+                    
+                    console.log('Contact Form Submitted (Simulated):', { name, email, subject: document.getElementById('subject').value, message });
+                    showNotificationModal('Message Sent!', 'Thank you for your message. We will get back to you soon.');
+                    contactForm.reset();
+                });
+            }
+
+            // --- Initial Setup ---
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+            renderGallery(); // Load and display items from localStorage
+            showPage('home'); // Show home page by default
+        });
+    </script>
+</body>
+</html>
